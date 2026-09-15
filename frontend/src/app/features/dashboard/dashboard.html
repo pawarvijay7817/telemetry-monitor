@@ -1,0 +1,189 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <div>
+      <h1>Controller Monitoring</h1>
+
+      <span class="connection" [class.offline]="!connected()">
+        <span class="dot"></span>
+        {{ connected() ? 'Connected' : 'Disconnected' }}
+      </span>
+    </div>
+
+    <div class="last-update">
+      Last update:
+
+      {{ lastUpdated() | date: 'mediumTime' }}
+    </div>
+  </header>
+
+  <div class="dashboard-actions" aria-label="Dashboard actions">
+    <button type="button" (click)="exportCsv()" [disabled]="!collectedData().length">
+      Export CSV
+    </button>
+    <button type="button" (click)="exportExcel()" [disabled]="!collectedData().length">
+      Export Excel
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Loading telemetry...</div>
+  }
+
+  @if (error()) {
+    <div class="error">
+      {{ error() }}
+    </div>
+  }
+
+  @if (dashboard(); as data) {
+    <div class="telemetry-grid">
+      <!-- Velocity -->
+
+      <section class="telemetry-card">
+        <div class="card-header">
+          <h2>Velocity</h2>
+
+          <select
+            [value]="velocityUnit()"
+            (change)="changeUnit('velocity', $any($event.target).value)"
+          >
+            @for (unit of velocityUnits; track unit) {
+              <option [value]="unit">
+                {{ unit }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="metric-overview">
+          <app-gauge
+            [value]="getCurrentValue('velocity')"
+            [max]="getGaugeMax('velocity')"
+            [unit]="velocityUnit()"
+            [status]="getStatus('velocity', getCurrentValue('velocity'), velocityUnit())"
+          />
+          <div>
+            <div class="value">
+              {{ getCurrentValue('velocity') | number: '1.2-2' }}
+              <span>{{ velocityUnit() }}</span>
+            </div>
+            <div
+              class="status"
+              [class]="
+                getStatus('velocity', getCurrentValue('velocity'), velocityUnit()).toLowerCase()
+              "
+            >
+              {{ getStatus('velocity', getCurrentValue('velocity'), velocityUnit()) }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          echarts
+          class="chart"
+          [options]="getChartOptions(getHistory('velocity'), velocityUnit())"
+        ></div>
+      </section>
+
+      <!-- Pressure -->
+
+      <section class="telemetry-card">
+        <div class="card-header">
+          <h2>Pressure</h2>
+
+          <select
+            [value]="pressureUnit()"
+            (change)="changeUnit('pressure', $any($event.target).value)"
+          >
+            @for (unit of pressureUnits; track unit) {
+              <option [value]="unit">
+                {{ unit }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="metric-overview">
+          <app-gauge
+            [value]="getCurrentValue('pressure')"
+            [max]="getGaugeMax('pressure')"
+            [unit]="pressureUnit()"
+            [status]="getStatus('pressure', getCurrentValue('pressure'), pressureUnit())"
+          />
+          <div>
+            <div class="value">
+              {{ getCurrentValue('pressure') | number: '1.2-2' }}
+              <span>{{ pressureUnit() }}</span>
+            </div>
+            <div
+              class="status"
+              [class]="
+                getStatus('pressure', getCurrentValue('pressure'), pressureUnit()).toLowerCase()
+              "
+            >
+              {{ getStatus('pressure', getCurrentValue('pressure'), pressureUnit()) }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          echarts
+          class="chart"
+          [options]="getChartOptions(getHistory('pressure'), pressureUnit())"
+        ></div>
+      </section>
+
+      <!-- Temperature -->
+
+      <section class="telemetry-card">
+        <div class="card-header">
+          <h2>Temperature</h2>
+
+          <select
+            [value]="temperatureUnit()"
+            (change)="changeUnit('temperature', $any($event.target).value)"
+          >
+            @for (unit of temperatureUnits; track unit) {
+              <option [value]="unit">
+                {{ unit }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="metric-overview">
+          <app-gauge
+            [value]="getCurrentValue('temperature')"
+            [max]="getGaugeMax('temperature')"
+            [unit]="temperatureUnit()"
+            [status]="getStatus('temperature', getCurrentValue('temperature'), temperatureUnit())"
+          />
+          <div>
+            <div class="value">
+              {{ getCurrentValue('temperature') | number: '1.2-2' }}
+              <span>{{ temperatureUnit() }}</span>
+            </div>
+            <div
+              class="status"
+              [class]="
+                getStatus(
+                  'temperature',
+                  getCurrentValue('temperature'),
+                  temperatureUnit()
+                ).toLowerCase()
+              "
+            >
+              {{ getStatus('temperature', getCurrentValue('temperature'), temperatureUnit()) }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          echarts
+          class="chart"
+          [options]="getChartOptions(getHistory('temperature'), temperatureUnit())"
+        ></div>
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,24 @@
+<div
+  class="gauge"
+  [class]="status().toLowerCase()"
+  role="meter"
+  [attr.aria-valuenow]="value()"
+  [attr.aria-valuemin]="min()"
+  [attr.aria-valuemax]="max()"
+  [attr.aria-label]="status() + ' gauge'"
+>
+  <svg viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="gauge-track" cx="60" cy="60" r="48" />
+    <circle
+      class="gauge-value"
+      cx="60"
+      cy="60"
+      r="48"
+      [style.stroke-dasharray]="valuePercent() * 3.02 + ' 302'"
+    />
+  </svg>
+  <div class="gauge-label">
+    <strong>{{ value() | number: '1.1-1' }}</strong>
+    <span>{{ unit() }}</span>
+  </div>
+</div>
