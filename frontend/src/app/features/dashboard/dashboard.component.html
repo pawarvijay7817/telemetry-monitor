@@ -43,10 +43,7 @@
         <div class="card-header">
           <h2>Velocity</h2>
 
-          <select
-            [value]="velocityUnit()"
-            (change)="changeUnit('velocity', $any($event.target).value)"
-          >
+          <select [value]="velocityUnit()" (change)="onUnitChange('velocity', $event)">
             @for (unit of velocityUnits; track unit) {
               <option [value]="unit">
                 {{ unit }}
@@ -57,32 +54,23 @@
 
         <div class="metric-overview">
           <app-gauge
-            [value]="getCurrentValue('velocity')"
-            [max]="getGaugeMax('velocity')"
+            [value]="currentValues().velocity"
+            [max]="gaugeMaxes().velocity"
             [unit]="velocityUnit()"
-            [status]="getStatus('velocity', getCurrentValue('velocity'), velocityUnit())"
+            [status]="currentStatuses().velocity"
           />
           <div>
             <div class="value">
-              {{ getCurrentValue('velocity') | number: '1.2-2' }}
+              {{ currentValues().velocity | number: '1.2-2' }}
               <span>{{ velocityUnit() }}</span>
             </div>
-            <div
-              class="status"
-              [class]="
-                getStatus('velocity', getCurrentValue('velocity'), velocityUnit()).toLowerCase()
-              "
-            >
-              {{ getStatus('velocity', getCurrentValue('velocity'), velocityUnit()) }}
+            <div class="status" [class]="currentStatuses().velocity.toLowerCase()">
+              {{ currentStatuses().velocity }}
             </div>
           </div>
         </div>
 
-        <div
-          echarts
-          class="chart"
-          [options]="getChartOptions(getHistory('velocity'), velocityUnit())"
-        ></div>
+        <div echarts class="chart" [options]="chartOptions().velocity"></div>
       </section>
 
       <!-- Pressure -->
@@ -91,10 +79,7 @@
         <div class="card-header">
           <h2>Pressure</h2>
 
-          <select
-            [value]="pressureUnit()"
-            (change)="changeUnit('pressure', $any($event.target).value)"
-          >
+          <select [value]="pressureUnit()" (change)="onUnitChange('pressure', $event)">
             @for (unit of pressureUnits; track unit) {
               <option [value]="unit">
                 {{ unit }}
@@ -105,32 +90,23 @@
 
         <div class="metric-overview">
           <app-gauge
-            [value]="getCurrentValue('pressure')"
-            [max]="getGaugeMax('pressure')"
+            [value]="currentValues().pressure"
+            [max]="gaugeMaxes().pressure"
             [unit]="pressureUnit()"
-            [status]="getStatus('pressure', getCurrentValue('pressure'), pressureUnit())"
+            [status]="currentStatuses().pressure"
           />
           <div>
             <div class="value">
-              {{ getCurrentValue('pressure') | number: '1.2-2' }}
+              {{ currentValues().pressure | number: '1.2-2' }}
               <span>{{ pressureUnit() }}</span>
             </div>
-            <div
-              class="status"
-              [class]="
-                getStatus('pressure', getCurrentValue('pressure'), pressureUnit()).toLowerCase()
-              "
-            >
-              {{ getStatus('pressure', getCurrentValue('pressure'), pressureUnit()) }}
+            <div class="status" [class]="currentStatuses().pressure.toLowerCase()">
+              {{ currentStatuses().pressure }}
             </div>
           </div>
         </div>
 
-        <div
-          echarts
-          class="chart"
-          [options]="getChartOptions(getHistory('pressure'), pressureUnit())"
-        ></div>
+        <div echarts class="chart" [options]="chartOptions().pressure"></div>
       </section>
 
       <!-- Temperature -->
@@ -139,10 +115,7 @@
         <div class="card-header">
           <h2>Temperature</h2>
 
-          <select
-            [value]="temperatureUnit()"
-            (change)="changeUnit('temperature', $any($event.target).value)"
-          >
+          <select [value]="temperatureUnit()" (change)="onUnitChange('temperature', $event)">
             @for (unit of temperatureUnits; track unit) {
               <option [value]="unit">
                 {{ unit }}
@@ -153,36 +126,23 @@
 
         <div class="metric-overview">
           <app-gauge
-            [value]="getCurrentValue('temperature')"
-            [max]="getGaugeMax('temperature')"
+            [value]="currentValues().temperature"
+            [max]="gaugeMaxes().temperature"
             [unit]="temperatureUnit()"
-            [status]="getStatus('temperature', getCurrentValue('temperature'), temperatureUnit())"
+            [status]="currentStatuses().temperature"
           />
           <div>
             <div class="value">
-              {{ getCurrentValue('temperature') | number: '1.2-2' }}
+              {{ currentValues().temperature | number: '1.2-2' }}
               <span>{{ temperatureUnit() }}</span>
             </div>
-            <div
-              class="status"
-              [class]="
-                getStatus(
-                  'temperature',
-                  getCurrentValue('temperature'),
-                  temperatureUnit()
-                ).toLowerCase()
-              "
-            >
-              {{ getStatus('temperature', getCurrentValue('temperature'), temperatureUnit()) }}
+            <div class="status" [class]="currentStatuses().temperature.toLowerCase()">
+              {{ currentStatuses().temperature }}
             </div>
           </div>
         </div>
 
-        <div
-          echarts
-          class="chart"
-          [options]="getChartOptions(getHistory('temperature'), temperatureUnit())"
-        ></div>
+        <div echarts class="chart" [options]="chartOptions().temperature"></div>
       </section>
     </div>
   }

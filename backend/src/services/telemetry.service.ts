@@ -11,7 +11,7 @@ interface ParameterState {
   history: TelemetrySample[];
 }
 
-class TelemetryService {
+export class TelemetryService {
   private readonly MAX_SAMPLES = 100;
 
   private cycle = 0;

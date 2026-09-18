@@ -1,8 +1,16 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, switchMap, timer } from 'rxjs';
 import { NgxEchartsDirective } from 'ngx-echarts';
+import type { EChartsOption } from 'echarts';
 
 import { DashboardService } from '../../core/services/dashboard.service';
 import { UnitConversionService } from '../../core/services/unit-conversion.service';
@@ -14,14 +22,15 @@ import {
   TelemetrySample,
 } from '../../core/models/telemetry.model';
 import { ExportService } from '../../core/services/export.service';
-import { GaugeComponent } from '../../shared/gauge/gauge';
+import { GaugeComponent } from '../../shared/gauge/gauge.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [DatePipe, DecimalPipe, NgxEchartsDirective, GaugeComponent],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
   private readonly dashboardService = inject(DashboardService);
@@ -45,6 +54,62 @@ export class DashboardComponent {
   readonly temperatureUnits = ['°C', '°F', 'K'];
 
   readonly collectedData = signal<DashboardResponse[]>([]);
+
+  readonly currentValues = computed<Record<ParameterType, number>>(() => {
+    const data = this.dashboard();
+
+    return {
+      velocity: data
+        ? this.conversionService.convertVelocity(
+            data.velocity.value,
+            data.velocity.unit,
+            this.velocityUnit(),
+          )
+        : 0,
+      pressure: data
+        ? this.conversionService.convertPressure(
+            data.pressure.value,
+            data.pressure.unit,
+            this.pressureUnit(),
+          )
+        : 0,
+      temperature: data
+        ? this.conversionService.convertTemperature(
+            data.temperature.value,
+            data.temperature.unit,
+            this.temperatureUnit(),
+          )
+        : 0,
+    };
+  });
+
+  readonly currentStatuses = computed<Record<ParameterType, Status>>(() => ({
+    velocity: this.getStatus('velocity', this.currentValues().velocity, this.velocityUnit()),
+    pressure: this.getStatus('pressure', this.currentValues().pressure, this.pressureUnit()),
+    temperature: this.getStatus(
+      'temperature',
+      this.currentValues().temperature,
+      this.temperatureUnit(),
+    ),
+  }));
+
+  readonly gaugeMaxes = computed<Record<ParameterType, number>>(() => ({
+    velocity: this.convertValue('velocity', 400, 'cm/s', this.velocityUnit()),
+    pressure: this.convertValue('pressure', 1200, 'mbar', this.pressureUnit()),
+    temperature: this.convertValue('temperature', 60, '°C', this.temperatureUnit()),
+  }));
+
+  readonly histories = computed<Record<ParameterType, TelemetrySample[]>>(() => ({
+    velocity: this.getHistory('velocity'),
+    pressure: this.getHistory('pressure'),
+    temperature: this.getHistory('temperature'),
+  }));
+
+  readonly chartOptions = computed<Record<ParameterType, EChartsOption>>(() => ({
+    velocity: this.createChartOptions(this.histories().velocity, this.velocityUnit()),
+    pressure: this.createChartOptions(this.histories().pressure, this.pressureUnit()),
+    temperature: this.createChartOptions(this.histories().temperature, this.temperatureUnit()),
+  }));
 
   constructor() {
     this.startPolling();
@@ -100,35 +165,8 @@ export class DashboardComponent {
     }
   }
 
-  getCurrentValue(type: ParameterType): number {
-    const data = this.dashboard();
-
-    if (!data) {
-      return 0;
-    }
-
-    switch (type) {
-      case 'velocity':
-        return this.conversionService.convertVelocity(
-          data.velocity.value,
-          data.velocity.unit,
-          this.velocityUnit(),
-        );
-
-      case 'pressure':
-        return this.conversionService.convertPressure(
-          data.pressure.value,
-          data.pressure.unit,
-          this.pressureUnit(),
-        );
-
-      case 'temperature':
-        return this.conversionService.convertTemperature(
-          data.temperature.value,
-          data.temperature.unit,
-          this.temperatureUnit(),
-        );
-    }
+  onUnitChange(type: ParameterType, event: Event): void {
+    this.changeUnit(type, (event.target as HTMLSelectElement).value);
   }
 
   getHistory(type: ParameterType): TelemetrySample[] {
@@ -144,14 +182,15 @@ export class DashboardComponent {
     }));
   }
 
-  getChartOptions(history: TelemetrySample[], unit: string): any {
+  private createChartOptions(history: TelemetrySample[], unit: string): EChartsOption {
     return {
       animation: true,
       animationDuration: 300,
 
       tooltip: {
         trigger: 'axis',
-        valueFormatter: (value: number) => `${value.toFixed(2)} ${unit}`,
+        valueFormatter: (value: unknown) =>
+          `${typeof value === 'number' ? value.toFixed(2) : String(value)} ${unit}`,
       },
 
       xAxis: {
@@ -181,18 +220,12 @@ export class DashboardComponent {
     };
   }
 
-  getUnit(type: ParameterType): string {
+  private getUnit(type: ParameterType): string {
     return type === 'velocity'
       ? this.velocityUnit()
       : type === 'pressure'
         ? this.pressureUnit()
         : this.temperatureUnit();
-  }
-
-  getGaugeMax(type: ParameterType): number {
-    const max = type === 'velocity' ? 400 : type === 'pressure' ? 1200 : 60;
-    const unit = type === 'velocity' ? 'cm/s' : type === 'pressure' ? 'mbar' : '°C';
-    return this.convertValue(type, max, unit, this.getUnit(type));
   }
 
   getStatus(type: ParameterType, value: number, unit: string): Status {
