@@ -58,10 +58,22 @@ The output is written to `frontend/dist/frontend/browser`. The packaged Electron
 
 ## Tests
 
+Run all frontend and backend tests from the repository root:
+
+```powershell
+npm test
+```
+
 Run the Angular unit tests:
 
 ```powershell
 npm --prefix frontend test
+```
+
+Run the backend unit tests:
+
+```powershell
+npm --prefix backend test
 ```
 
 The backend simulation keeps a maximum of 100 samples per parameter, changes values by approximately 10%, and moves values toward their baselines on every fifth update cycle.

@@ -46,15 +46,18 @@ export class TelemetryService {
   constructor() {
     this.initializeHistory();
 
-    const simulationTimer = setInterval(() => this.update(), 1000);
+    const simulationTimer = setInterval(
+      () => this.update(),
+      1000,
+    ) as unknown as { unref(): void };
     simulationTimer.unref();
   }
 
   private initializeHistory(): void {
     for (let i = 0; i < this.MAX_SAMPLES; i++) {
-      this.updateParameter(this.state.velocity);
-      this.updateParameter(this.state.pressure);
-      this.updateParameter(this.state.temperature);
+      this.addSample(this.state.velocity);
+      this.addSample(this.state.pressure);
+      this.addSample(this.state.temperature);
     }
   }
 
@@ -64,6 +67,16 @@ export class TelemetryService {
     this.updateParameter(this.state.velocity);
     this.updateParameter(this.state.pressure);
     this.updateParameter(this.state.temperature);
+  }
+
+  private addSample(parameter: ParameterState): void {
+    const now = new Date();
+
+    parameter.history.push({
+      time: now.toLocaleTimeString("en-GB"),
+      timestamp: now.toISOString(),
+      value: Number(parameter.value.toFixed(2)),
+    });
   }
 
   private updateParameter(parameter: ParameterState): void {
@@ -79,13 +92,7 @@ export class TelemetryService {
       parameter.value = parameter.value * (1 + percentage);
     }
 
-    const now = new Date();
-
-    parameter.history.push({
-      time: now.toLocaleTimeString("en-GB"),
-      timestamp: now.toISOString(),
-      value: Number(parameter.value.toFixed(2)),
-    });
+    this.addSample(parameter);
 
     if (parameter.history.length > this.MAX_SAMPLES) {
       parameter.history.shift();

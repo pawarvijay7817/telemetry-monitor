@@ -9,7 +9,6 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  protected readonly title = signal('frontend');
   readonly darkMode = signal(false);
 
   toggleTheme(): void {

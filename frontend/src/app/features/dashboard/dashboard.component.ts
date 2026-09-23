@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY, finalize, switchMap, timer } from 'rxjs';
+import { catchError, EMPTY, exhaustMap, finalize, timer } from 'rxjs';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 
@@ -119,7 +119,7 @@ export class DashboardComponent {
     timer(0, 1000)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap(() =>
+        exhaustMap(() =>
           this.dashboardService.getDashboard().pipe(
             catchError((error) => {
               console.error(error);

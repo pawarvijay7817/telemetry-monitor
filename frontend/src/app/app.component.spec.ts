@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 
+import '../testing/resize-observer';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
@@ -19,7 +20,7 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should render the dashboard heading', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;

@@ -5,6 +5,13 @@ import { Injectable } from '@angular/core';
 })
 export class UnitConversionService {
   convertVelocity(value: number, from: string, to: string): number {
+    if (
+      !this.isSupported(from, ['mm/s', 'cm/s', 'm/s', 'km/h', 'ft/s']) ||
+      !this.isSupported(to, ['mm/s', 'cm/s', 'm/s', 'km/h', 'ft/s'])
+    ) {
+      return value;
+    }
+
     const cmPerSecond = this.toCmPerSecond(value, from);
 
     switch (to) {
@@ -18,7 +25,7 @@ export class UnitConversionService {
         return cmPerSecond / 100;
 
       case 'km/h':
-        return cmPerSecond * 0.036;
+        return (cmPerSecond * 36) / 1000;
 
       case 'ft/s':
         return cmPerSecond / 30.48;
@@ -51,6 +58,13 @@ export class UnitConversionService {
   }
 
   convertPressure(value: number, from: string, to: string): number {
+    if (
+      !this.isSupported(from, ['Pa', 'kPa', 'mbar', 'bar', 'psi', 'atm']) ||
+      !this.isSupported(to, ['Pa', 'kPa', 'mbar', 'bar', 'psi', 'atm'])
+    ) {
+      return value;
+    }
+
     const mbar = this.toMbar(value, from);
 
     switch (to) {
@@ -103,6 +117,10 @@ export class UnitConversionService {
   }
 
   convertTemperature(value: number, from: string, to: string): number {
+    if (!this.isSupported(from, ['°C', '°F', 'K']) || !this.isSupported(to, ['°C', '°F', 'K'])) {
+      return value;
+    }
+
     let celsius: number;
 
     switch (from) {
@@ -128,5 +146,9 @@ export class UnitConversionService {
       default:
         return celsius;
     }
+  }
+
+  private isSupported(unit: string, supportedUnits: string[]): boolean {
+    return supportedUnits.includes(unit);
   }
 }

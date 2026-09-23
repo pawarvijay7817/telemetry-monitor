@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 
+import '../../../testing/resize-observer';
 import { DashboardComponent } from './dashboard.component';
 
 describe('DashboardComponent', () => {

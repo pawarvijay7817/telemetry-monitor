@@ -10,6 +10,7 @@
     "dev": "concurrently -k \"npm run frontend\" \"npm run backend\" \"npm run electron\"",
     "build:frontend": "npm --prefix frontend run build",
     "build": "npm run build:frontend",
+    "test": "npm --prefix frontend test -- --watch=false && npm --prefix backend test",
     "start:electron": "electron ."
   },
   "devDependencies": {
